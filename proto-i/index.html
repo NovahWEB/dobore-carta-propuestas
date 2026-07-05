@@ -614,15 +614,39 @@ button{font:inherit; color:inherit}
 
         <button class="item mini" type="button" data-item="espresso" data-print>
           <div class="line"><span class="nm">Espresso</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.2.50</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Espresso" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
         <button class="item mini" type="button" data-item="cappuccino" data-print>
           <div class="line"><span class="nm">Cappuccino</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.3.25</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Cappuccino" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
         <button class="item mini" type="button" data-item="latte" data-print>
           <div class="line"><span class="nm">Latte</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.3.75</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Latte" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
         <button class="item mini" type="button" data-item="coldbrew" data-print>
           <div class="line"><span class="nm">Cold Brew</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.4.00</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Cold Brew" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
 
         <div class="subtotal" data-print>
@@ -743,9 +767,21 @@ button{font:inherit; color:inherit}
 
         <button class="item mini" type="button" data-item="cheesecake" data-print>
           <div class="line"><span class="nm">Cheesecake de Maracuyá</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.4.75</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Cheesecake de Maracuyá" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
         <button class="item mini" type="button" data-item="brownie" data-print>
           <div class="line"><span class="nm">Brownie de Chocolate</span><span class="dots" aria-hidden="true"></span><span class="pr">B/.4.25</span></div>
+          <figure class="shot" data-shot>
+            <div class="thermal port">
+              <div class="frame"><img src="../fotos/placeholder.svg" alt="Brownie de Chocolate" loading="lazy" width="600" height="600"><span class="head-bar" aria-hidden="true"></span></div>
+              <div class="cap">— impreso en casa —</div>
+            </div>
+          </figure>
         </button>
 
         <div class="subtotal" data-print>
@@ -926,23 +962,21 @@ button{font:inherit; color:inherit}
   var closeT = null;
 
   function buildMedia(d){
-    if(d.photo){
-      var cls = d.o === 'land' ? 'land' : 'port';
-      var cropCls = d.crop ? ' crop' : '';
-      return '<figure class="photo-out '+cls+'">' +
-               '<svg class="staple" viewBox="0 0 38 16" aria-hidden="true">' +
-                 '<defs><linearGradient id="stg" x1="0" y1="0" x2="0" y2="1">' +
-                   '<stop offset="0" stop-color="#e9e4dc"/><stop offset="0.5" stop-color="#9a948c"/><stop offset="1" stop-color="#6f6a63"/>' +
-                 '</linearGradient></defs>' +
-                 '<rect x="4" y="3" width="30" height="4" rx="1.5" fill="url(#stg)"/>' +
-                 '<rect x="4" y="3" width="4" height="12" rx="1.5" fill="url(#stg)"/>' +
-                 '<rect x="30" y="3" width="4" height="12" rx="1.5" fill="url(#stg)"/>' +
-               '</svg>' +
-               '<div class="frame"><img'+ (cropCls?' class="crop"':'') +' src="../fotos/foto-'+d.photo+'.webp" alt="'+d.name+'"></div>' +
-               '<div class="pcap">Doboré · Boquete</div>' +
-             '</figure>';
-    }
-    return '<div class="nostub">'+ BIRD +'<p>Foto en camino</p></div>';
+    var src = d.photo ? '../fotos/foto-'+d.photo+'.webp' : '../fotos/placeholder.svg';
+    var cls = d.o === 'land' ? 'land' : 'port';
+    var cropCls = (d.photo && d.crop) ? ' crop' : '';
+    return '<figure class="photo-out '+cls+'">' +
+             '<svg class="staple" viewBox="0 0 38 16" aria-hidden="true">' +
+               '<defs><linearGradient id="stg" x1="0" y1="0" x2="0" y2="1">' +
+                 '<stop offset="0" stop-color="#e9e4dc"/><stop offset="0.5" stop-color="#9a948c"/><stop offset="1" stop-color="#6f6a63"/>' +
+               '</linearGradient></defs>' +
+               '<rect x="4" y="3" width="30" height="4" rx="1.5" fill="url(#stg)"/>' +
+               '<rect x="4" y="3" width="4" height="12" rx="1.5" fill="url(#stg)"/>' +
+               '<rect x="30" y="3" width="4" height="12" rx="1.5" fill="url(#stg)"/>' +
+             '</svg>' +
+             '<div class="frame"><img'+ (cropCls?' class="crop"':'') +' src="'+src+'" alt="'+d.name+'"></div>' +
+             '<div class="pcap">Doboré · Boquete</div>' +
+           '</figure>';
   }
 
   function openModal(id){

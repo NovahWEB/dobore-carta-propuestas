@@ -356,6 +356,9 @@
     brunch:'<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M30 10C22 18 22 30 30 40 38 30 38 18 30 10Z"/><path d="M30 14v34"/><path d="M30 24c-5-3-9-2-9-2M30 32c-6-3-11-1-11-1M30 24c5-3 9-2 9-2M30 32c6-3 11-1 11-1"/></svg>'
   };
 
+  /* placeholder temporal compartido para especímenes aún sin foto real */
+  var PLACEHOLDER = '../fotos/placeholder.svg';
+
   /* ------------------ THE MENU (contenido real) ------------------ */
   var DISHES = [
     {cat:'cafe', no:'01', name:'Espresso Sunrise', latin:'Citrus matutina', fam:'Familia · Cafeáceas',
@@ -423,8 +426,8 @@
         var zoom = d.zoom ? ' transform:scale('+d.zoom+');' : '';
         medInner = '<span class="clip"><img loading="lazy" alt="" src="../fotos/'+d.photo+'" style="object-position:'+d.pos+';'+zoom+'"></span>';
       } else {
-        medClass += ' specimen';
-        medInner = '<span class="clip">'+ (MARK[d.cat]||MARK.brunch) +'</span>';
+        // aún sin foto real: mismo tratamiento de imagen (clip circular, object-fit:cover, sepia) con el placeholder temporal
+        medInner = '<span class="clip"><img loading="lazy" alt="" src="'+PLACEHOLDER+'" style="object-position:50% 50%;"></span>';
       }
       var frame = '<svg class="frame" viewBox="0 0 100 120" preserveAspectRatio="none">'+
         '<ellipse class="ring-2" cx="50" cy="60" rx="49" ry="59"/>'+
@@ -652,11 +655,13 @@
       bloomImg.style.objectPosition = d.pos || '50% 50%';
       bloomImg.style.transform = d.zoom ? 'scale('+d.zoom+')' : '';
     } else {
-      bloomMed.classList.add('specimen');
-      bloomImg.style.display='none';
+      // aún sin foto real: mismo tratamiento que una foto real, con el placeholder temporal
+      bloomMed.classList.remove('specimen');
       var old = bloomMed.querySelector('.mark'); if(old) old.remove();
-      var span = document.createElement('span'); span.className='mark';
-      span.innerHTML = MARK[d.cat]||MARK.brunch; bloomMed.appendChild(span);
+      bloomImg.style.display='';
+      bloomImg.src = PLACEHOLDER;
+      bloomImg.style.objectPosition = '50% 50%';
+      bloomImg.style.transform = '';
     }
 
     lastFocus = document.activeElement;

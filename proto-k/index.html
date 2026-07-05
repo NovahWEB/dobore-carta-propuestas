@@ -507,14 +507,16 @@ fillBulbs();
 /* ---- Render de una categoría ---- */
 const reel = document.getElementById("reel");
 function cardHTML(it, i){
+  // Los platos con foto real usan su webp; los que aún no tienen foto muestran el
+  // placeholder compartido en la MISMA ranura de imagen (mismo frame cinemascope).
+  const src = it.photo ? `../fotos/foto-${it.photo}.webp` : "../fotos/placeholder.svg";
   const objp = `object-position:${it.objx??50}% ${it.objy??50}%;` + (it.tight?"transform:scale(1.22);":"");
   const num = String(i+1).padStart(2,"0");
-  if(it.photo){
-    const starTop = it.star ? `<span class="starflag">En cartelera</span><span class="starbulbs" aria-hidden="true"></span>`:"";
-    return `<button class="card ${it.star?'star':''}" data-id="${it.id}">
+  const starTop = it.star ? `<span class="starflag">En cartelera</span><span class="starbulbs" aria-hidden="true"></span>`:"";
+  return `<button class="card ${it.star?'star':''}" data-id="${it.id}">
       ${starTop}
       <figure class="frame">
-        <img src="../fotos/foto-${it.photo}.webp" alt="${it.name}" loading="lazy" style="${objp}">
+        <img src="${src}" alt="${it.name}" loading="lazy" style="${objp}">
         <span class="frame__hud"><span class="sq"></span>Cuadro ${num} · Doboré</span>
         <span class="frame__scope">2.39 : 1</span>
         <span class="frame__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
@@ -531,16 +533,6 @@ function cardHTML(it, i){
         </div>
       </div>
     </button>`;
-  }
-  // Sin foto — cartelera / programa
-  return `<button class="bill" data-id="${it.id}">
-    <span class="bill__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-    <span class="bill__main">
-      <span class="bill__name">${it.name}</span>
-      <span class="bill__desc">${it.cast}</span>
-    </span>
-    <span class="bill__price">${PESO(it.price)}<b>Función continua</b></span>
-  </button>`;
 }
 
 function renderCat(cat){
@@ -620,18 +612,12 @@ function openDetail(id){
   const it=findItem(id); if(!it) return;
   clearTimeout(closeTimer);
   lastFocus=document.activeElement;
-  if(it.photo){
-    const objp=`object-position:${it.objx??50}% ${it.objy??50}%;`;
-    modalMedia.innerHTML=`<div class="mframe${it.tight?' mframe--tight':''}">
-      <img src="../fotos/foto-${it.photo}.webp" alt="${it.name}" style="${objp}">
-      <span class="mframe__hud"><span class="rc"></span>Rec · Doboré · ${it.role}</span>
-    </div>`;
-  }else{
-    modalMedia.innerHTML=`<div class="titlecard"><div class="tc-in">
-      <div class="tc-orn">✦ ✦ ✦</div>
-      <div class="tc-name">${it.name}</div>
-    </div></div>`;
-  }
+  const msrc = it.photo ? `../fotos/foto-${it.photo}.webp` : "../fotos/placeholder.svg";
+  const objp=`object-position:${it.objx??50}% ${it.objy??50}%;`;
+  modalMedia.innerHTML=`<div class="mframe${it.tight?' mframe--tight':''}">
+    <img src="${msrc}" alt="${it.name}" style="${objp}">
+    <span class="mframe__hud"><span class="rc"></span>Rec · Doboré · ${it.role}</span>
+  </div>`;
   modalBody.innerHTML=`
     <div class="mbody__role">${it.role}</div>
     <h3 class="mbody__title" id="mTitle">${it.name}</h3>

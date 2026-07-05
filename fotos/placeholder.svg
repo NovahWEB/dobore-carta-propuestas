@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Imagen temporal — foto de muestra">
+  <defs>
+    <linearGradient id="pbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4ECDC"/>
+      <stop offset="1" stop-color="#E7D8BE"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#pbg)"/>
+  <!-- marco punteado = ranura de foto pendiente -->
+  <rect x="46" y="46" width="508" height="508" rx="26" fill="none"
+        stroke="#A8622F" stroke-opacity="0.55" stroke-width="3" stroke-dasharray="14 12"/>
+  <!-- icono de imagen (montaña + sol), centrado y seguro para recortes circulares -->
+  <g transform="translate(300,232)" fill="none" stroke="#8A4E23" stroke-width="9"
+     stroke-linejoin="round" stroke-linecap="round" opacity="0.9">
+    <rect x="-92" y="-70" width="184" height="140" rx="16"/>
+    <circle cx="-42" cy="-26" r="17" fill="#8A4E23" stroke="none"/>
+    <path d="M-92 44 L-30 -6 L14 34 L46 6 L92 46"/>
+  </g>
+  <!-- colibrí de marca, pequeño -->
+  <g transform="translate(266,300) scale(1.05)" fill="#A8622F" opacity="0.85">
+    <path d="M43 22.5c5.5-2.2 11.5-3 19-2.2-5.8 3.4-11.6 5.2-17.6 5.6l-1.4-3.4z"/>
+    <path d="M44.5 24.8c.8-5.8-2.8-10.6-8.6-11.7-6.6-1.2-11.8 2.6-13.7 8.6-2.1 6.6-7.6 10.5-14.6 11.4 4.8 3 10.4 3.9 15.4 2-1.2 3.8-3.8 6.8-7.6 8.7 5.8 1.2 11.6-1.6 14.7-6.6 3 .8 6.6-.1 9.4-2.7 2.9-2.6 5-6 5-9.7z"/>
+    <path d="M29.5 15C26 6.8 18.4 1.4 8.2 2c6.8 3.2 11.8 8.4 14.6 15.6 2.2-1.2 4.4-2 6.7-2.6z"/>
+  </g>
+  <text x="300" y="392" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="34" font-weight="800" letter-spacing="5" fill="#8A4E23">IMAGEN TEMPORAL</text>
+  <text x="300" y="430" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="23" letter-spacing="1" fill="#6B5A49">foto de muestra · pendiente del cliente</text>
+</svg>

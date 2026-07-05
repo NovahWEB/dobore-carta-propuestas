@@ -186,6 +186,14 @@
   .irow .ip{font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--terracota);flex:none;white-space:nowrap}
   .irow .col{display:flex;flex-direction:column}
   .irow:hover .in,.irow:focus-visible .in{color:var(--terracota)}
+  /* miniatura de foto para las filas del índice: misma ranura/tratamiento que un plato fotografiado */
+  .irow{align-items:center;gap:12px}
+  .ithumb{flex:none;width:66px;aspect-ratio:4/5;position:relative;overflow:hidden;
+    background:#1c0f07;border:1px solid rgba(120,74,36,.35);border-radius:2px;
+    box-shadow:0 8px 16px -12px rgba(40,22,8,.7)}
+  .ithumb::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(28,15,7,.14), transparent 42%, transparent 72%, rgba(28,15,7,.22))}
+  .ithumb img{width:100%;height:100%;object-fit:cover;filter:saturate(.98) contrast(1.03)}
 
   /* ---------------- pie de página: folio + continúa ---------------- */
   .tail{margin-top:auto;padding-top:30px}
@@ -427,10 +435,10 @@
 
       <section class="index anim" aria-label="Cafés de la barra">
         <div class="index-h"><span class="t">En la barra</span><span class="n tag">Servido caliente o frío</span></div>
-        <button class="irow" data-dish="espresso"><span class="col"><span class="in">Espresso</span><span class="id">Doble shot, tueste de la semana.</span></span><span class="lead"></span><span class="ip">B/. 2.50</span></button>
-        <button class="irow" data-dish="cappuccino"><span class="col"><span class="in">Cappuccino</span><span class="id">Leche vaporizada, espuma sedosa.</span></span><span class="lead"></span><span class="ip">B/. 3.25</span></button>
-        <button class="irow" data-dish="latte"><span class="col"><span class="in">Latte</span><span class="id">Suave, cremoso, con arte de la casa.</span></span><span class="lead"></span><span class="ip">B/. 3.75</span></button>
-        <button class="irow" data-dish="coldbrew"><span class="col"><span class="in">Cold Brew</span><span class="id">Extracción en frío, servido con hielo.</span></span><span class="lead"></span><span class="ip">B/. 4.00</span></button>
+        <button class="irow" data-dish="espresso"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Espresso</span><span class="id">Doble shot, tueste de la semana.</span></span><span class="lead"></span><span class="ip">B/. 2.50</span></button>
+        <button class="irow" data-dish="cappuccino"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Cappuccino</span><span class="id">Leche vaporizada, espuma sedosa.</span></span><span class="lead"></span><span class="ip">B/. 3.25</span></button>
+        <button class="irow" data-dish="latte"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Latte</span><span class="id">Suave, cremoso, con arte de la casa.</span></span><span class="lead"></span><span class="ip">B/. 3.75</span></button>
+        <button class="irow" data-dish="coldbrew"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Cold Brew</span><span class="id">Extracción en frío, servido con hielo.</span></span><span class="lead"></span><span class="ip">B/. 4.00</span></button>
       </section>
 
       <div class="tail">
@@ -609,8 +617,8 @@
 
       <section class="index anim" aria-label="Dulces sin foto">
         <div class="index-h"><span class="t">Dulce de más</span><span class="n tag">Con un espresso al lado</span></div>
-        <button class="irow" data-dish="cheesecake"><span class="col"><span class="in">Cheesecake de maracuyá</span><span class="id">Cremoso, con coulis bien panameño.</span></span><span class="lead"></span><span class="ip">B/. 4.75</span></button>
-        <button class="irow" data-dish="brownie"><span class="col"><span class="in">Brownie de chocolate</span><span class="id">Denso, húmedo, con nuez tostada.</span></span><span class="lead"></span><span class="ip">B/. 4.25</span></button>
+        <button class="irow" data-dish="cheesecake"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Cheesecake de maracuyá</span><span class="id">Cremoso, con coulis bien panameño.</span></span><span class="lead"></span><span class="ip">B/. 4.75</span></button>
+        <button class="irow" data-dish="brownie"><span class="ithumb"><img src="../fotos/placeholder.svg" loading="lazy" alt=""></span><span class="col"><span class="in">Brownie de chocolate</span><span class="id">Denso, húmedo, con nuez tostada.</span></span><span class="lead"></span><span class="ip">B/. 4.25</span></button>
       </section>
 
       <div class="tail">
@@ -678,6 +686,9 @@
   'use strict';
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = function(){ return !reduced && typeof window.gsap !== 'undefined'; };
+
+  /* imagen temporal compartida para los platos aún sin foto real */
+  var PLACEHOLDER = '../fotos/placeholder.svg';
 
   /* --------------------------------------------------- datos reales */
   var ART = {
@@ -882,14 +893,11 @@
     mDesc.innerHTML = dropcapify(d.desc);
     mCap.textContent = d.cap || '';
     mPrice.textContent = d.price;
-    if (d.foto){
-      mFigure.className = 'm-figure' + (d.waffle ? ' waffle' : '');
-      mFigure.innerHTML = (d.destacado ? '<span class="m-badge">Plato de la casa</span>' : '') +
-        '<img src="' + d.foto + '" alt="' + (d.alt || '') + '">';
-    } else {
-      mFigure.className = 'm-figure art';
-      mFigure.innerHTML = ART[d.cat] || ART.cafe;
-    }
+    var mSrc = d.foto || PLACEHOLDER;
+    var mAlt = d.foto ? (d.alt || '') : 'Imagen temporal, foto de muestra pendiente';
+    mFigure.className = 'm-figure' + (d.foto && d.waffle ? ' waffle' : '');
+    mFigure.innerHTML = (d.destacado ? '<span class="m-badge">Plato de la casa</span>' : '') +
+      '<img src="' + mSrc + '" alt="' + mAlt + '">';
     lastFocus = document.activeElement;
     modal.hidden = false;
     modal.scrollTop = 0;

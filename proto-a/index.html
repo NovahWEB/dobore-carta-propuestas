@@ -273,6 +273,8 @@ body::before{
   content:"";position:absolute;top:5px;left:10px;right:10px;height:0;
   border-top:2px dotted rgba(43,29,20,.22);
 }
+.slip figure{aspect-ratio:5/4;overflow:hidden;border-radius:2px;background:var(--kraft-deep);margin-bottom:11px}
+.slip img{width:100%;height:100%;object-fit:cover;display:block}
 .slip .name{font-family:Caveat,cursive;font-weight:700;font-size:21px;line-height:1;display:block}
 .slip .leader{
   display:block;border-bottom:2px dotted rgba(43,29,20,.28);margin:9px 2px 10px;
@@ -487,21 +489,25 @@ body.locked{overflow:hidden}
       <div class="slips">
         <p class="slips-title">y de la barra, <b>lo de siempre</b>:</p>
         <button class="slip" data-item="espresso" style="--rot:-1.8deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Espresso" loading="lazy"></figure>
           <span class="name">Espresso</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$2.50</span>
         </button>
         <button class="slip" data-item="cappuccino" style="--rot:1.4deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Cappuccino" loading="lazy"></figure>
           <span class="name">Cappuccino</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$3.25</span>
         </button>
         <button class="slip" data-item="latte" style="--rot:1.1deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Latte" loading="lazy"></figure>
           <span class="name">Latte</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$3.75</span>
         </button>
         <button class="slip" data-item="coldbrew" style="--rot:-1.2deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Cold Brew" loading="lazy"></figure>
           <span class="name">Cold Brew</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$4.00</span>
@@ -622,11 +628,13 @@ body.locked{overflow:hidden}
       <div class="slips">
         <p class="slips-title">y para cerrar <b>dulce</b>:</p>
         <button class="slip" data-item="cheesecake" style="--rot:1.5deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Cheesecake de maracuyá" loading="lazy"></figure>
           <span class="name">Cheesecake de maracuyá</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$4.75</span>
         </button>
         <button class="slip" data-item="brownie" style="--rot:-1.3deg" aria-haspopup="dialog">
+          <figure><img src="../fotos/placeholder.svg" alt="Brownie de chocolate" loading="lazy"></figure>
           <span class="name">Brownie de chocolate</span>
           <span class="leader" aria-hidden="true"></span>
           <span class="price-stamp stamped">$4.25</span>
@@ -711,10 +719,10 @@ if (hasGsap && typeof window.ScrollTrigger !== "undefined") gsap.registerPlugin(
 /* ---------- datos de la carta ---------- */
 var DATA = {
   "espresso-sunrise":{name:"Espresso Sunrise",desc:"Agua tónica, espresso y jugo de naranja natural. Burbujea, despierta y amanece contigo.",price:"$1.00",img:"../fotos/foto-01.webp",cat:"cafe",catLabel:"Café"},
-  "espresso":{name:"Espresso",desc:"Corto, intenso y sin rodeos. El origen de todo.",price:"$2.50",cat:"cafe",catLabel:"Café"},
-  "cappuccino":{name:"Cappuccino",desc:"Espresso y espuma de leche en paz perfecta.",price:"$3.25",cat:"cafe",catLabel:"Café"},
-  "latte":{name:"Latte",desc:"Suave y cremoso, para quedarse conversando un rato largo.",price:"$3.75",cat:"cafe",catLabel:"Café"},
-  "coldbrew":{name:"Cold Brew",desc:"Extraído en frío, con calma: suave, limpio y refrescante.",price:"$4.00",cat:"cafe",catLabel:"Café"},
+  "espresso":{name:"Espresso",desc:"Corto, intenso y sin rodeos. El origen de todo.",price:"$2.50",img:"../fotos/placeholder.svg",cat:"cafe",catLabel:"Café"},
+  "cappuccino":{name:"Cappuccino",desc:"Espresso y espuma de leche en paz perfecta.",price:"$3.25",img:"../fotos/placeholder.svg",cat:"cafe",catLabel:"Café"},
+  "latte":{name:"Latte",desc:"Suave y cremoso, para quedarse conversando un rato largo.",price:"$3.75",img:"../fotos/placeholder.svg",cat:"cafe",catLabel:"Café"},
+  "coldbrew":{name:"Cold Brew",desc:"Extraído en frío, con calma: suave, limpio y refrescante.",price:"$4.00",img:"../fotos/placeholder.svg",cat:"cafe",catLabel:"Café"},
   "sandwich-huevo":{name:"Sandwich de Huevo",desc:"El clásico que nunca falla, hecho al momento y servido caliente.",price:"$1.00",img:"../fotos/foto-02.webp",cat:"brunch",catLabel:"Brunch"},
   "burger":{name:"Hamburguesa Doboré Suprema",desc:"Pan artesanal, media libra de carne, queso cheddar y Pepper Jack, cebolla encurtida y salsa de la casa.",price:"$1.00",img:"../fotos/foto-03.webp",cat:"brunch",catLabel:"Brunch",fav:true},
   "tortilla":{name:"Tortilla de la Abuela",desc:"Como la hacía la abuela: sartén, paciencia y mucho cariño.",price:"$1.00",img:"../fotos/foto-05.webp",cat:"brunch",catLabel:"Brunch"},
@@ -722,8 +730,8 @@ var DATA = {
   "alitas":{name:"Alitas de Pollo",desc:"Doraditas y jugosas. Para compartir... o no.",price:"$1.00",img:"../fotos/foto-07.webp",cat:"brunch",catLabel:"Brunch"},
   "cinnamon":{name:"Cinnamon Roll",desc:"Tibio, perfumado a canela y recién salido del horno.",price:"$1.00",img:"../fotos/foto-04.webp",cat:"postres",catLabel:"Postres"},
   "waffles":{name:"Waffles Doboré",desc:"Dorados por fuera, suaves por dentro. El favorito de la casa, con todas las de ganar.",price:"$1.00",img:"../fotos/foto-09.webp",cat:"postres",catLabel:"Postres",fav:true},
-  "cheesecake":{name:"Cheesecake de maracuyá",desc:"Ácido, dulce y cremoso: el equilibrio perfecto para cerrar.",price:"$4.75",cat:"postres",catLabel:"Postres"},
-  "brownie":{name:"Brownie de chocolate",desc:"Denso, chocolatoso y con el centro húmedo, como debe ser.",price:"$4.25",cat:"postres",catLabel:"Postres"}
+  "cheesecake":{name:"Cheesecake de maracuyá",desc:"Ácido, dulce y cremoso: el equilibrio perfecto para cerrar.",price:"$4.75",img:"../fotos/placeholder.svg",cat:"postres",catLabel:"Postres"},
+  "brownie":{name:"Brownie de chocolate",desc:"Denso, chocolatoso y con el centro húmedo, como debe ser.",price:"$4.25",img:"../fotos/placeholder.svg",cat:"postres",catLabel:"Postres"}
 };
 var LETRAS = {cafe:"C",brunch:"B",postres:"P"};
 

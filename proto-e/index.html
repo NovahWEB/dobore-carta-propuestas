@@ -135,6 +135,10 @@
       radial-gradient(120% 90% at 50% 20%, transparent 55%, rgba(6,12,8,.45)),
       var(--dust);
     background-size:cover,150px 150px;opacity:.9;mix-blend-mode:multiply}
+  /* la imagen temporal debe leerse clara incluso sobre la pizarra (sin el multiply de tiza) */
+  .photo:has(img[src*="placeholder"]){background:#F4ECDC}
+  .photo:has(img[src*="placeholder"])::after{opacity:0}
+  .photo img[src*="placeholder"]{filter:none}
   .frame{position:absolute;inset:-9px;width:calc(100% + 18px);height:calc(100% + 18px);color:var(--chalk);pointer-events:none}
   .frame path{fill:none;stroke:currentColor;stroke-width:4.4;stroke-linecap:round;stroke-linejoin:round}
   .frame .corner{stroke:var(--copper);stroke-width:3.6}
@@ -348,28 +352,66 @@
       </button>
 
       <p class="group-label fade">de la barra</p>
-      <div class="lines">
-        <button class="line reveal" data-dish="espresso" aria-label="Espresso, un dólar con cincuenta, ver detalle">
-          <span class="line-name write chalk-rough">Espresso</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$2.50</span></span>
-        </button>
-        <button class="line reveal" data-dish="cappuccino" aria-label="Cappuccino, ver detalle">
-          <span class="line-name write chalk-rough">Cappuccino</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$3.25</span></span>
-        </button>
-        <button class="line reveal" data-dish="latte" aria-label="Latte, ver detalle">
-          <span class="line-name write chalk-rough">Latte</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$3.75</span></span>
-        </button>
-        <button class="line reveal" data-dish="coldbrew" aria-label="Cold Brew, ver detalle">
-          <span class="line-name write chalk-rough">Cold Brew</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.00</span></span>
-        </button>
-      </div>
+
+      <button class="card reveal t-l" data-dish="espresso" aria-label="Espresso, un dólar con cincuenta, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M22 30 C100 24 210 26 298 30 C296 130 300 260 296 372 C210 378 90 376 22 374 C26 250 20 140 22 30 Z"/>
+            <path class="draw corner" d="M298 30 C311 26 314 15 304 9"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$2.50</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Espresso</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
+
+      <button class="card reveal t-r a-r" data-dish="cappuccino" aria-label="Cappuccino, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M24 28 C120 24 210 26 298 30 C300 130 296 260 296 374 C200 380 96 376 22 372 C24 250 22 140 24 28 Z"/>
+            <path class="draw corner" d="M22 372 C10 378 8 388 18 393"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$3.25</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Cappuccino</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
+
+      <button class="card reveal t-l" data-dish="latte" aria-label="Latte, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M22 30 C100 24 210 26 298 30 C296 130 300 260 296 372 C210 378 90 376 22 374 C26 250 20 140 22 30 Z"/>
+            <path class="draw corner" d="M298 30 C311 26 314 15 304 9"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$3.75</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Latte</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
+
+      <button class="card reveal t-r a-r" data-dish="coldbrew" aria-label="Cold Brew, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M24 28 C120 24 210 26 298 30 C300 130 296 260 296 374 C200 380 96 376 22 372 C24 250 22 140 24 28 Z"/>
+            <path class="draw corner" d="M22 372 C10 378 8 388 18 393"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.00</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Cold Brew</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
     </div>
   </section>
 
@@ -514,18 +556,36 @@
       </button>
 
       <p class="group-label fade">para acompañar el café</p>
-      <div class="lines">
-        <button class="line reveal" data-dish="cheesecake" aria-label="Cheesecake de maracuyá, ver detalle">
-          <span class="line-name write chalk-rough">Cheesecake de maracuyá</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.75</span></span>
-        </button>
-        <button class="line reveal" data-dish="brownie" aria-label="Brownie de chocolate, ver detalle">
-          <span class="line-name write chalk-rough">Brownie de chocolate</span>
-          <span class="line-lead" aria-hidden="true"></span>
-          <span class="price sm chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.25</span></span>
-        </button>
-      </div>
+
+      <button class="card reveal t-l" data-dish="cheesecake" aria-label="Cheesecake de maracuyá, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M22 30 C100 24 210 26 298 30 C296 130 300 260 296 372 C210 378 90 376 22 374 C26 250 20 140 22 30 Z"/>
+            <path class="draw corner" d="M298 30 C311 26 314 15 304 9"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.75</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Cheesecake de maracuyá</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
+
+      <button class="card reveal t-r a-r" data-dish="brownie" aria-label="Brownie de chocolate, ver detalle">
+        <span class="card-photowrap">
+          <span class="photo chalk-rough"><img src="../fotos/placeholder.svg" alt="Imagen temporal, foto de muestra pendiente" style="object-position:50% 50%"></span>
+          <svg class="frame chalk-rough" viewBox="0 0 320 400" preserveAspectRatio="none" aria-hidden="true">
+            <path class="draw" d="M24 28 C120 24 210 26 298 30 C300 130 296 260 296 374 C200 380 96 376 22 372 C24 250 22 140 24 28 Z"/>
+            <path class="draw corner" d="M22 372 C10 378 8 388 18 393"/>
+          </svg>
+        </span>
+        <span class="price chalk-rough"><svg class="pcircle" viewBox="0 0 120 90" aria-hidden="true"><path class="draw" d="M20 48 C14 22 56 10 92 16 C116 20 116 64 94 76 C60 90 12 82 18 50"/></svg><span class="price-num">$4.25</span></span>
+        <span class="card-body">
+          <span class="card-name write chalk-rough">Brownie de chocolate</span>
+          <span class="card-hint fade">toca para verlo</span>
+        </span>
+      </button>
     </div>
   </section>
 
@@ -585,6 +645,7 @@
   /* ---------------- datos reales ---------------- */
   var CATS = { cafe:'de la carta · Café', brunch:'de la carta · Brunch', postres:'de la carta · Postres' };
   var WAFFLE_STYLE = 'object-position:50% 90%;transform:scale(1.32);transform-origin:42% 88%';
+  var PLACEHOLDER = '../fotos/placeholder.svg'; /* muestra temporal para platos aún sin foto */
   var DISHES = {
     'espresso-sunrise':{cat:'cafe',name:'Espresso <em>Sunrise</em>',price:'$1.00',foto:'../fotos/foto-01.webp',pos:'50% 42%',
       alt:'Espresso Sunrise en vaso alto, con capas de tónica, espresso y jugo de naranja',
@@ -805,9 +866,10 @@
       var st = d.style || ('object-position:' + (d.pos || '50% 50%'));
       dPhoto.innerHTML = '<img src="' + d.foto + '" style="' + st + '" alt="' + (d.alt || '').replace(/"/g,'') + '">';
     } else {
-      dPhoto.classList.remove('kb');
-      dPhoto.classList.add('sin-foto');
-      dPhoto.innerHTML = CUP;
+      /* aún sin foto real: mostramos la muestra temporal en la misma ranura/tratamiento */
+      dPhoto.classList.remove('sin-foto','kb');
+      dPhoto.classList.add('kb');
+      dPhoto.innerHTML = '<img src="' + PLACEHOLDER + '" style="object-position:50% 50%" alt="Imagen temporal, foto de muestra pendiente">';
     }
     detail.hidden = false;
     dCard.scrollTop = 0;

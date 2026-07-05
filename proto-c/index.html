@@ -237,6 +237,15 @@
     border-bottom:1.4px solid var(--linea);-webkit-tap-highlight-color:transparent;
   }
   .row:first-of-type{border-top:1.4px solid var(--linea)}
+  /* ranura de foto para las filas (placeholder mientras llega la foto real) */
+  .row-thumb{
+    flex:none;align-self:center;position:relative;
+    width:52px;height:52px;border-radius:50%;overflow:hidden;background:#1c110a;
+    box-shadow:0 8px 18px rgba(122,61,24,.22), inset 0 0 0 2px rgba(255,255,255,.5);
+    transition:transform .28s ease;
+  }
+  .row-thumb img{width:100%;height:100%;object-fit:cover}
+  .row:hover .row-thumb,.row:focus-visible .row-thumb{transform:scale(1.05)}
   .row-name{font-family:'Playfair Display',serif;font-weight:700;font-size:1.35rem;line-height:1.1;color:var(--tostado);transition:transform .28s ease,color .2s ease}
   .row-dots{flex:1;border-bottom:2px dotted var(--linea);transform:translateY(-6px);min-width:16px}
   .row .price{flex:none;font-size:.86rem;background:transparent;color:var(--cobre);border:1.5px solid var(--cobre);box-shadow:none}
@@ -414,10 +423,10 @@
 
     <div class="rows">
       <p class="rows-title">De la barra, al grano</p>
-      <button class="row" type="button" data-dish="espresso"><span class="row-name">Espresso</span><span class="row-dots" aria-hidden="true"></span><span class="price">$2.50</span></button>
-      <button class="row" type="button" data-dish="cappuccino"><span class="row-name">Cappuccino</span><span class="row-dots" aria-hidden="true"></span><span class="price">$3.25</span></button>
-      <button class="row" type="button" data-dish="latte"><span class="row-name">Latte</span><span class="row-dots" aria-hidden="true"></span><span class="price">$3.75</span></button>
-      <button class="row" type="button" data-dish="coldbrew"><span class="row-name">Cold Brew</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.00</span></button>
+      <button class="row" type="button" data-dish="espresso"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Espresso</span><span class="row-dots" aria-hidden="true"></span><span class="price">$2.50</span></button>
+      <button class="row" type="button" data-dish="cappuccino"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Cappuccino</span><span class="row-dots" aria-hidden="true"></span><span class="price">$3.25</span></button>
+      <button class="row" type="button" data-dish="latte"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Latte</span><span class="row-dots" aria-hidden="true"></span><span class="price">$3.75</span></button>
+      <button class="row" type="button" data-dish="coldbrew"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Cold Brew</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.00</span></button>
     </div>
   </div>
 </section>
@@ -556,8 +565,8 @@
 
     <div class="rows">
       <p class="rows-title">Para acompañar el café</p>
-      <button class="row" type="button" data-dish="cheesecake"><span class="row-name">Cheesecake de maracuyá</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.75</span></button>
-      <button class="row" type="button" data-dish="brownie"><span class="row-name">Brownie de chocolate</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.25</span></button>
+      <button class="row" type="button" data-dish="cheesecake"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Cheesecake de maracuyá</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.75</span></button>
+      <button class="row" type="button" data-dish="brownie"><span class="row-thumb" aria-hidden="true"><img src="../fotos/placeholder.svg" alt="" loading="lazy"></span><span class="row-name">Brownie de chocolate</span><span class="row-dots" aria-hidden="true"></span><span class="price">$4.25</span></button>
     </div>
   </div>
 </section>
@@ -773,6 +782,7 @@
   var cPrice = scrim.querySelector('.card-price');
   var lastFocus = null;
   var scrollLockY = 0;
+  var PLACEHOLDER = '../fotos/placeholder.svg';
   var ARTE = '<svg class="arte" viewBox="0 0 120 120" aria-hidden="true">'+
     '<path d="M30 52 h56 v14 a26 26 0 0 1 -26 26 H56 a26 26 0 0 1 -26 -26 z"/>'+
     '<path d="M86 58 c14 0 19 5 19 14 c0 8 -6 12 -15 12"/>'+
@@ -808,8 +818,8 @@
       cDisc.classList.remove('sin');
       cDisc.innerHTML = '<img src="'+d.foto+'" style="object-position:'+(d.pos||'50% 50%')+'" alt="'+(d.alt||d.name)+'">';
     } else {
-      cDisc.classList.add('sin');
-      cDisc.innerHTML = ARTE;
+      cDisc.classList.remove('sin');
+      cDisc.innerHTML = '<img src="'+PLACEHOLDER+'" style="object-position:50% 50%" alt="'+(d.alt||d.name)+'">';
     }
     lastFocus = document.activeElement;
     scrim.hidden = false;
