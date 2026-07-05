@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doboré — La Carta · Revista</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F4E9D4'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-style='italic' text-anchor='middle' fill='%23A23918'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,500;1,700;1,900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Archivo:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #F4E9D4;
+    --paper-2:    #EEDFC3;
+    --paper-3:    #E7D4B2;
+    --ink:        #241309;
+    --ink-soft:   #5E3E27;
+    --ink-faint:  #8A6A4E;
+    --terracota:  #A23918;
+    --cobre:      #B4682E;
+    --cobre-claro:#CE9256;
+    --miel:       #8A600F;
+    --olivo:      #6E6A34;
+    --line:       rgba(60,32,14,.24);
+    --line-soft:  rgba(60,32,14,.14);
+    --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    --turn: .92s cubic-bezier(.62,.04,.18,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  html,body{overflow:hidden;overscroll-behavior:none}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Newsreader',Georgia,serif;
+    font-size:17px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    -webkit-tap-highlight-color:transparent;
+  }
+  img{max-width:100%;display:block}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit;-webkit-tap-highlight-color:transparent}
+  :focus-visible{outline:2.5px solid var(--terracota);outline-offset:3px;border-radius:3px}
+
+  /* ---------------- texturas globales ---------------- */
+  .grain{position:fixed;inset:0;z-index:900;pointer-events:none;background-image:var(--grano);opacity:.07;mix-blend-mode:multiply}
+  .vignette{position:fixed;inset:0;z-index:899;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 42%, transparent 58%, rgba(40,22,8,.10) 100%);}
+
+  .tag{font-family:'Archivo',system-ui,sans-serif;text-transform:uppercase;letter-spacing:.24em;font-weight:600}
+
+  /* ============================================================ DECK / LIBRO */
+  .deck{
+    position:fixed;inset:0;z-index:1;
+    perspective:1700px;perspective-origin:60% 50%;
+    overflow:hidden;background:#c9b48c;
+  }
+  /* canto/lomo del libro */
+  .deck::before{content:"";position:absolute;left:0;top:0;bottom:0;width:26px;z-index:40;pointer-events:none;
+    background:linear-gradient(90deg, rgba(30,16,6,.42), rgba(30,16,6,.10) 55%, transparent);}
+  /* grosor de páginas al canto derecho */
+  .deck::after{content:"";position:absolute;right:0;top:10px;bottom:10px;width:9px;z-index:40;pointer-events:none;
+    background:repeating-linear-gradient(180deg,#d8c39a 0 2px,#c2ab7f 2px 4px);
+    box-shadow:-2px 0 6px rgba(0,0,0,.18);border-radius:0 3px 3px 0;opacity:.9}
+
+  .page{
+    position:absolute;inset:0;
+    background:var(--paper);
+    transform-origin:left center;
+    transform:rotateY(0deg);
+    transition:transform var(--turn), filter var(--turn);
+    backface-visibility:hidden;
+    will-change:transform;
+    overflow-y:auto;overflow-x:hidden;
+    overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    pointer-events:none;
+    box-shadow:inset 20px 0 46px -26px rgba(48,26,10,.7), inset -8px 0 26px -20px rgba(48,26,10,.4);
+  }
+  .page.is-active{pointer-events:auto}
+  .page.turned{transform:rotateY(-172deg);filter:brightness(.5) contrast(1.05)}
+
+  .sheet{
+    position:relative;max-width:462px;margin-inline:auto;
+    min-height:100%;
+    padding:22px 26px calc(96px + env(safe-area-inset-bottom,0px));
+    display:flex;flex-direction:column;
+  }
+  .sheet > *{position:relative;z-index:1}
+  .sheet > .layer-back{position:absolute;z-index:0}
+
+  /* capa de fondo (parallax): folio fantasma + botánica */
+  .layer-back{inset:0;pointer-events:none;overflow:hidden}
+  .ghost{
+    position:absolute;font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+    line-height:.8;color:transparent;-webkit-text-stroke:1.3px rgba(120,74,36,.20);
+    font-size:clamp(190px,64vw,340px);user-select:none;letter-spacing:-.03em;
+  }
+  .botanica{position:absolute;color:var(--miel);opacity:.16}
+  .botanica path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------------- cabecera de página (running head) ---------------- */
+  .runhead{display:flex;justify-content:space-between;align-items:center;
+    font-size:.62rem;color:var(--ink-soft);padding-bottom:9px;border-bottom:1px solid var(--line);}
+  .runhead .r-r{color:var(--terracota)}
+
+  /* ---------------- apertura de sección ---------------- */
+  .opener{padding-top:20px}
+  .kicker{font-size:.64rem;color:var(--cobre);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";width:26px;height:1.4px;background:var(--cobre);display:inline-block}
+  .op-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+    font-size:clamp(3.4rem,20vw,5.6rem);line-height:.86;letter-spacing:-.02em;color:var(--terracota);}
+  .standfirst{font-style:italic;font-size:1.24rem;line-height:1.4;color:var(--ink-soft);
+    margin-top:16px;max-width:26ch}
+  .rule{height:1px;background:var(--line);margin:22px 0}
+  .rule.thin{background:var(--line-soft)}
+
+  /* prosa con capitular */
+  .lede{font-size:1.02rem;line-height:1.66;color:var(--ink);}
+  .lede .dropcap{float:left;font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+    font-size:4.9rem;line-height:.72;color:var(--cobre);margin:6px 12px -2px 0;}
+
+  /* ---------------- figura editorial (plato con foto) ---------------- */
+  .feature{margin-top:30px}
+  .feature.dish{display:block;width:100%}
+  .figure{position:relative;background:#efe2c8;padding:9px 9px 0;
+    box-shadow:0 16px 34px -18px rgba(40,22,8,.7), 0 2px 0 rgba(255,255,255,.5) inset;
+    border:1px solid rgba(120,74,36,.28);}
+  .figure .frame{position:relative;overflow:hidden;background:#1c0f07;aspect-ratio:4/5;border:1px solid rgba(120,74,36,.35)}
+  .figure .frame img{width:100%;height:100%;object-fit:cover;filter:saturate(.98) contrast(1.03);
+    transform:scale(1.02)}
+  .figure.wide .frame{aspect-ratio:5/4}
+  /* recorte específico para disimular fondo de foto-09 */
+  .figure.waffle .frame{aspect-ratio:4/3}
+  .figure.waffle .frame img{object-position:50% 86%;transform:scale(1.16)}
+  .figure .frame::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(28,15,7,.16), transparent 26%, transparent 70%, rgba(28,15,7,.28));}
+  .kb .frame img{animation:kb 20s ease-in-out infinite alternate;transform-origin:56% 46%}
+  @keyframes kb{from{transform:scale(1.04)}to{transform:scale(1.2) translate(-2%,-3%)}}
+  .figure.waffle.kb .frame img{animation:kbw 20s ease-in-out infinite alternate}
+  @keyframes kbw{from{transform:scale(1.16)}to{transform:scale(1.3) translate(-1.5%,-2%)}}
+
+  .figcap{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+    padding:9px 4px 2px;border-bottom:1px solid var(--line-soft)}
+  .figcap .cap{font-style:italic;font-size:.82rem;line-height:1.32;color:var(--ink-soft);max-width:30ch}
+  .figcap .cap b{font-style:normal;font-family:'Archivo',sans-serif;font-weight:600;font-size:.6rem;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--cobre);display:block;margin-bottom:2px}
+  .price{font-family:'Playfair Display',serif;font-weight:700;font-size:1.02rem;color:var(--terracota);
+    white-space:nowrap;flex:none;border:1.4px solid var(--terracota);border-radius:2px;padding:.16em .5em;line-height:1}
+
+  .dish-head{display:flex;align-items:baseline;gap:12px;margin:16px 0 2px}
+  .dish-no{font-family:'Archivo',sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.14em;
+    color:var(--cobre);flex:none;transform:translateY(-2px)}
+  .dish-name{font-family:'Playfair Display',serif;font-weight:900;line-height:.98;letter-spacing:-.01em;
+    font-size:clamp(1.9rem,9vw,2.5rem);overflow-wrap:break-word}
+  .dish-name em{font-style:italic;color:var(--cobre)}
+  .dish-read{font-family:'Archivo',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-faint);display:inline-flex;align-items:center;gap:7px;margin-top:8px}
+  .dish-read::after{content:"";width:30px;height:1px;background:var(--ink-faint);transform:scaleX(.5);transform-origin:left;transition:transform .3s ease}
+  .feature.dish:hover .dish-read::after,.feature.dish:focus-visible .dish-read::after{transform:scaleX(1)}
+
+  /* sello editorial: plato de la casa */
+  .seal{position:absolute;top:-11px;right:12px;z-index:3;
+    background:var(--terracota);color:var(--paper);padding:.4em .7em;
+    font-family:'Archivo',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    box-shadow:0 8px 18px -8px rgba(120,30,10,.8);transform:rotate(-2deg)}
+  .seal::before{content:"";position:absolute;left:8px;top:100%;border:6px solid transparent;border-top-color:var(--terracota);border-left-color:var(--terracota)}
+
+  .pullquote{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;
+    font-size:1.5rem;line-height:1.24;color:var(--terracota);margin:26px 0 8px;
+    padding-left:16px;border-left:2px solid var(--cobre-claro)}
+  .pullquote span{display:block;font-family:'Archivo',sans-serif;font-style:normal;font-weight:600;
+    font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);margin-top:10px}
+
+  /* ---------------- índice de barra (platos sin foto) ---------------- */
+  .index{margin-top:34px}
+  .index-h{display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:4px}
+  .index-h .t{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:1.5rem;color:var(--ink)}
+  .index-h .n{font-size:.6rem;color:var(--ink-faint)}
+  .irow{display:flex;align-items:baseline;gap:8px;width:100%;padding:12px 0;
+    border-bottom:1px solid var(--line-soft);text-align:left}
+  .irow .in{font-family:'Playfair Display',serif;font-weight:700;font-size:1.14rem;color:var(--ink);line-height:1.15}
+  .irow .id{font-style:italic;font-size:.78rem;color:var(--ink-faint);display:block;margin-top:1px;line-height:1.3;max-width:30ch}
+  .irow .lead{flex:1;border-bottom:1.5px dotted var(--line);transform:translateY(-5px);min-width:14px}
+  .irow .ip{font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--terracota);flex:none;white-space:nowrap}
+  .irow .col{display:flex;flex-direction:column}
+  .irow:hover .in,.irow:focus-visible .in{color:var(--terracota)}
+
+  /* ---------------- pie de página: folio + continúa ---------------- */
+  .tail{margin-top:auto;padding-top:30px}
+  .folio{text-align:center;font-family:'Playfair Display',serif;font-style:italic;color:var(--ink-faint);
+    font-size:1rem;letter-spacing:.1em}
+  .continua{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:14px;
+    font-style:italic;color:var(--cobre);font-size:.98rem}
+  .continua .arw{font-family:'Archivo',sans-serif;font-style:normal;transition:transform .3s ease}
+  .continua:hover .arw,.continua:focus-visible .arw{transform:translateX(5px)}
+
+  /* ============================================================ PORTADA */
+  .cover .sheet{padding-top:26px;justify-content:flex-start}
+  .masthead{display:flex;justify-content:space-between;align-items:center;
+    font-size:.6rem;color:var(--ink-soft);border-bottom:1.5px solid var(--ink);padding-bottom:10px}
+  .cover-h{text-align:center;margin-top:22px}
+  .cover-h .colibri{width:70px;margin:0 auto 6px;color:var(--terracota)}
+  .cover-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;color:var(--terracota);
+    font-size:clamp(4.6rem,30vw,7.4rem);line-height:.82;letter-spacing:-.02em}
+  .cover-sub{font-family:'Archivo',sans-serif;font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--ink-soft);margin-top:12px}
+  .cover-fig{position:relative;margin:20px auto 0;max-width:290px;background:#efe2c8;padding:10px 10px 0;
+    border:1px solid rgba(120,74,36,.3);box-shadow:0 22px 44px -22px rgba(40,22,8,.8);transform:rotate(-1.4deg)}
+  .cover-fig .frame{position:relative;overflow:hidden;aspect-ratio:3/4;background:#1c0f07;border:1px solid rgba(120,74,36,.35)}
+  .cover-fig .frame img{width:100%;height:100%;object-fit:cover}
+  .cover-fig .frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(28,15,7,.4))}
+  .cover-fig figcaption{font-style:italic;font-size:.74rem;color:var(--ink-soft);padding:8px 4px 2px;text-align:center}
+  .cover-blurb{font-style:italic;font-size:1.06rem;line-height:1.45;color:var(--ink);text-align:center;
+    max-width:28ch;margin:22px auto 0}
+  .cover-blurb b{font-style:normal;color:var(--terracota)}
+  .toc{margin:26px auto 0;max-width:340px;width:100%}
+  .toc-h{font-family:'Archivo',sans-serif;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--ink-faint);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:2px}
+  .toc-row{display:flex;align-items:baseline;gap:10px;width:100%;padding:12px 0;border-bottom:1px solid var(--line-soft);text-align:left}
+  .toc-row .tn{font-family:'Playfair Display',serif;font-weight:700;font-size:.9rem;color:var(--cobre);flex:none;width:22px}
+  .toc-row .tt{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:1.3rem;color:var(--ink)}
+  .toc-row .td{font-style:italic;font-size:.76rem;color:var(--ink-faint);display:block}
+  .toc-row .lead{flex:1;border-bottom:1.5px dotted var(--line);transform:translateY(-5px)}
+  .toc-row .tp{font-family:'Playfair Display',serif;font-weight:700;color:var(--terracota);flex:none}
+  .toc-row:hover .tt,.toc-row:focus-visible .tt{color:var(--terracota)}
+  .cover-cue{text-align:center;margin-top:26px;font-family:'Archivo',sans-serif;font-size:.6rem;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--ink-faint);display:flex;align-items:center;justify-content:center;gap:10px}
+  .cover-cue .swipe{width:34px;height:1.4px;background:var(--cobre);transform-origin:left;animation:cue 2.1s ease-in-out infinite}
+  @keyframes cue{0%,100%{transform:scaleX(.3)}50%{transform:scaleX(1)}}
+
+  /* ============================================================ COLOFÓN */
+  .colofon .sheet{justify-content:center;align-items:center;text-align:center;gap:0}
+  .colofon .colibri{width:96px;color:var(--terracota);margin-bottom:14px}
+  .colofon-name{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:3.4rem;color:var(--terracota);line-height:.9}
+  .colofon-line{font-family:'Archivo',sans-serif;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--miel);margin-top:12px}
+  .colofon-note{font-style:italic;font-size:1.12rem;line-height:1.5;color:var(--ink);max-width:26ch;margin:24px auto 0}
+  .colofon-meta{margin-top:30px;font-size:.72rem;color:var(--ink-faint);line-height:1.7;max-width:30ch}
+  .colofon-meta b{font-family:'Archivo',sans-serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.58rem;color:var(--ink-soft);display:block;margin-bottom:3px}
+
+  .colibri path{fill:currentColor}
+  .colibri .ojo{fill:var(--paper)}
+  .wing{transform-origin:16% 84%}
+
+  /* ============================================================ NAV FIJA */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:200;
+    padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(0deg, var(--paper) 68%, rgba(244,233,212,.86));
+    border-top:1.5px solid var(--ink);
+    display:flex;align-items:center;gap:8px;justify-content:space-between;
+    box-shadow:0 -8px 22px -16px rgba(40,22,8,.6)}
+  .nav-arw{flex:none;width:40px;height:40px;border:1.4px solid var(--ink);border-radius:50%;
+    display:grid;place-items:center;color:var(--ink);transition:background .2s ease,color .2s ease,transform .2s ease}
+  .nav-arw svg{width:15px;height:15px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .nav-arw:hover{background:var(--ink);color:var(--paper)}
+  .nav-arw:active{transform:scale(.92)}
+  .nav-arw[aria-disabled="true"]{opacity:.28;pointer-events:none}
+  .nav-cats{flex:1;display:flex;justify-content:center;gap:4px;min-width:0}
+  .nav-cat{font-family:'Archivo',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-soft);padding:8px 9px;position:relative;white-space:nowrap;border-radius:4px}
+  .nav-cat::after{content:"";position:absolute;left:9px;right:9px;bottom:3px;height:2px;background:var(--terracota);
+    transform:scaleX(0);transform-origin:center;transition:transform .3s cubic-bezier(.62,.04,.18,1)}
+  .nav-cat[aria-current="true"]{color:var(--terracota)}
+  .nav-cat[aria-current="true"]::after{transform:scaleX(1)}
+  .nav-folio{flex:none;font-family:'Playfair Display',serif;font-style:italic;font-size:.82rem;
+    color:var(--ink-faint);min-width:52px;text-align:right;letter-spacing:.04em}
+
+  /* ============================================================ DETALLE (gatefold) */
+  .modal{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;
+    overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    opacity:0;transition:opacity .34s ease;
+    padding:0 16px}
+  .modal[hidden]{display:none}
+  .modal.is-open{opacity:1}
+  .modal-bg{position:fixed;inset:0;z-index:0;
+    background:radial-gradient(120% 100% at 50% 30%, rgba(40,22,8,.72), rgba(20,11,4,.9));
+    -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .modal-bg::after{content:"";position:absolute;inset:0;background-image:var(--grano);opacity:.1;mix-blend-mode:overlay}
+  .m-close{position:fixed;top:14px;right:14px;z-index:6;width:44px;height:44px;border-radius:50%;
+    border:1.6px solid var(--paper);color:var(--paper);background:rgba(20,11,4,.35);
+    display:grid;place-items:center;transition:transform .25s ease,background .25s ease}
+  .m-close:hover{background:rgba(20,11,4,.6);transform:rotate(90deg)}
+  .m-close svg{width:17px;height:17px;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;fill:none}
+
+  .modal-scroll{position:relative;z-index:2;margin:auto;width:100%;max-width:430px;
+    padding:60px 0 40px;perspective:1500px}
+  .spread{transform-style:preserve-3d;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.75)}
+  .leaf{background:var(--paper);position:relative;backface-visibility:hidden;
+    transition:transform .62s cubic-bezier(.5,.02,.2,1),opacity .5s ease;opacity:0}
+  .leaf--photo{transform-origin:bottom center;transform:rotateX(-92deg);z-index:2}
+  .leaf--text{transform-origin:top center;transform:rotateX(92deg)}
+  .modal.is-open .leaf{opacity:1}
+  .modal.is-open .leaf--photo{transform:rotateX(0deg);transition-delay:.06s}
+  .modal.is-open .leaf--text{transform:rotateX(0deg);transition-delay:.16s}
+  /* línea de doblez central */
+  .spread::before{content:"";position:absolute;left:0;right:0;top:50%;height:22px;transform:translateY(-11px);z-index:3;pointer-events:none;
+    background:linear-gradient(180deg,transparent,rgba(40,22,8,.16),transparent)}
+
+  .m-figure{position:relative;overflow:hidden;background:#1c0f07;aspect-ratio:1/1;
+    border-bottom:3px solid var(--paper-3)}
+  .m-figure img{width:100%;height:100%;object-fit:cover}
+  .m-figure.waffle img{object-position:50% 86%;transform:scale(1.16)}
+  .m-figure .m-badge{position:absolute;left:14px;top:14px;z-index:2;
+    font-family:'Archivo',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--paper);background:var(--terracota);padding:.4em .7em;box-shadow:0 6px 14px -6px rgba(0,0,0,.6)}
+  .m-figure.art{display:grid;place-items:center;background:var(--paper-2);aspect-ratio:4/3}
+  .m-figure.art svg{width:44%;color:var(--cobre);opacity:.92}
+  .m-art path,.m-art ellipse,.m-art line,.m-art circle{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+  .leaf--text{padding:24px 26px 30px}
+  .m-kicker{font-family:'Archivo',sans-serif;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--cobre);display:flex;align-items:center;gap:9px}
+  .m-kicker::before{content:"";width:20px;height:1.3px;background:var(--cobre)}
+  .m-name{font-family:'Playfair Display',serif;font-weight:900;line-height:.98;letter-spacing:-.01em;
+    font-size:clamp(2rem,10vw,2.7rem);color:var(--terracota);margin:12px 0 4px;overflow-wrap:break-word}
+  .m-name em{font-style:italic;color:var(--cobre)}
+  .m-desc{font-size:1.04rem;line-height:1.62;color:var(--ink);margin-top:14px}
+  .m-desc .dropcap{float:left;font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+    font-size:3.6rem;line-height:.7;color:var(--cobre);margin:5px 10px -2px 0}
+  .m-cap{font-style:italic;font-size:.82rem;color:var(--ink-faint);margin-top:14px;
+    padding-top:12px;border-top:1px solid var(--line-soft)}
+  .m-foot{display:flex;align-items:center;gap:16px;margin-top:20px}
+  .m-price{font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;color:var(--terracota);
+    border:1.6px solid var(--terracota);border-radius:3px;padding:.18em .55em;line-height:1;flex:none}
+  .m-note{font-family:'Archivo',sans-serif;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);line-height:1.5}
+
+  /* ============================================================ MOVIMIENTO REDUCIDO */
+  @media (prefers-reduced-motion: reduce){
+    .page{transition:none !important;transform:none !important;filter:none !important;
+      opacity:0;pointer-events:none;visibility:hidden}
+    .page.is-active{opacity:1;pointer-events:auto;visibility:visible}
+    .kb .frame img,.kbw .frame img,.cover-cue .swipe,.wing{animation:none !important}
+    .leaf{transition:opacity .25s ease !important;transform:none !important}
+    .modal{transition:opacity .2s ease}
+    *{scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<main class="deck" id="deck" aria-label="Carta de Doboré, revista">
+
+  <!-- =================================================== 0 · PORTADA -->
+  <section class="page cover is-active" data-cat="portada" aria-label="Portada">
+    <div class="sheet">
+      <div class="masthead">
+        <span class="tag">Doboré · Café</span>
+        <span class="tag">N.º 01</span>
+      </div>
+      <div class="cover-h">
+        <svg class="colibri" viewBox="0 0 110 90" aria-hidden="true">
+          <path class="wing" d="M62 37 C 63 26, 71 14, 84 8 C 90 5.5, 97 4.5, 103 5.5 C 97 13, 90 21, 83 28 C 77 33.5, 70 37, 64 38.5 Z"/>
+          <path d="M6 44 C 18 42.5, 30 43.5, 40 44.5 C 43 37, 50 32, 57 33 C 62 34, 66 38, 67 43 C 73 45, 77.5 50, 78.5 55 C 85 61, 89.5 71, 88.5 83 C 84.5 78, 81 73, 78 68 C 77.5 74.5, 74.5 79.5, 69.5 83 C 69.5 76.5, 68.5 70, 66 64.5 C 59.5 66, 51 63.5, 45.5 57 C 42.5 53.5, 41 49.5, 40.5 47.5 C 30 46.5, 17 45.5, 6 45.5 Z"/>
+          <circle class="ojo" cx="51.5" cy="40" r="2"/>
+        </svg>
+        <h1 class="cover-title">La<br>Carta</h1>
+        <p class="cover-sub">Café · Brunch · Postres · Boquete, Panamá</p>
+      </div>
+      <figure class="cover-fig">
+        <div class="frame"><img src="../fotos/foto-01.webp" alt="Espresso Sunrise: capas de tónica, espresso y jugo de naranja en un vaso alto con hielo"></div>
+        <figcaption>En portada, el Espresso Sunrise, foto de la casa.</figcaption>
+      </figure>
+      <p class="cover-blurb">Grano de altura, brunch de fogón y algo dulce para cerrar. <b>Toca cualquier plato</b> para verlo de cerca.</p>
+
+      <nav class="toc" aria-label="Contenido de este número">
+        <p class="toc-h">En este número</p>
+        <button class="toc-row" data-goto="1">
+          <span class="tn">I</span>
+          <span class="col"><span class="tt">Café</span><span class="td">El ritual de la barra</span></span>
+          <span class="lead"></span><span class="tp">02</span>
+        </button>
+        <button class="toc-row" data-goto="2">
+          <span class="tn">II</span>
+          <span class="col"><span class="tt">Brunch</span><span class="td">Del fogón, sin prisa</span></span>
+          <span class="lead"></span><span class="tp">03</span>
+        </button>
+        <button class="toc-row" data-goto="4">
+          <span class="tn">III</span>
+          <span class="col"><span class="tt">Postres</span><span class="td">Para quedarse un rato más</span></span>
+          <span class="lead"></span><span class="tp">05</span>
+        </button>
+      </nav>
+
+      <p class="cover-cue"><span class="swipe" aria-hidden="true"></span> Desliza o toca la flecha para hojear</p>
+    </div>
+  </section>
+
+  <!-- =================================================== 1 · CAFÉ -->
+  <section class="page" data-cat="cafe" aria-label="Café">
+    <div class="sheet">
+      <div class="layer-back" aria-hidden="true">
+        <span class="ghost" style="top:2%;right:-8%">01</span>
+        <svg class="botanica" style="width:150px;left:-46px;bottom:6%;transform:rotate(-14deg)" viewBox="0 0 100 170">
+          <path d="M50 6 C 50 60, 50 116, 50 164"/>
+          <path d="M50 32 C 33 28, 21 15, 19 3 C 36 7, 46 18, 50 32Z"/>
+          <path d="M50 66 C 67 62, 79 49, 81 37 C 64 41, 54 52, 50 66Z"/>
+          <path d="M50 102 C 33 98, 21 85, 19 73 C 36 77, 46 88, 50 102Z"/>
+          <path d="M50 138 C 67 134, 79 121, 81 109 C 64 113, 54 124, 50 138Z"/>
+        </svg>
+      </div>
+      <div class="runhead"><span class="tag">Doboré · La Carta</span><span class="tag r-r">Sección I</span></div>
+
+      <header class="opener anim">
+        <p class="kicker tag">Sección Uno · El ritual de la mañana</p>
+        <h2 class="op-title">Café</h2>
+        <p class="standfirst">El día empieza en la barra, con calma y con aroma.</p>
+      </header>
+      <div class="rule anim"></div>
+      <p class="lede anim"><span class="dropcap">G</span>rano cultivado en las tierras altas de Boquete, tostado fresco cada semana y molido al momento. Aquí el café no se apura: se conversa. Pídelo corto y cargado, o largo para quedarte un rato.</p>
+
+      <button class="feature dish anim" data-dish="espresso-sunrise" aria-label="Ver Espresso Sunrise">
+        <figure class="figure kb">
+          <div class="frame"><img src="../fotos/foto-01.webp" loading="lazy" alt="Espresso Sunrise en vaso alto, con capas de agua tónica, espresso y jugo de naranja sobre hielo"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Espresso Sunrise: tónica, un shot cargado y naranja natural, en capas sobre hielo.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 1</span><span class="dish-name">Espresso <em>Sunrise</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <section class="index anim" aria-label="Cafés de la barra">
+        <div class="index-h"><span class="t">En la barra</span><span class="n tag">Servido caliente o frío</span></div>
+        <button class="irow" data-dish="espresso"><span class="col"><span class="in">Espresso</span><span class="id">Doble shot, tueste de la semana.</span></span><span class="lead"></span><span class="ip">B/. 2.50</span></button>
+        <button class="irow" data-dish="cappuccino"><span class="col"><span class="in">Cappuccino</span><span class="id">Leche vaporizada, espuma sedosa.</span></span><span class="lead"></span><span class="ip">B/. 3.25</span></button>
+        <button class="irow" data-dish="latte"><span class="col"><span class="in">Latte</span><span class="id">Suave, cremoso, con arte de la casa.</span></span><span class="lead"></span><span class="ip">B/. 3.75</span></button>
+        <button class="irow" data-dish="coldbrew"><span class="col"><span class="in">Cold Brew</span><span class="id">Extracción en frío, servido con hielo.</span></span><span class="lead"></span><span class="ip">B/. 4.00</span></button>
+      </section>
+
+      <div class="tail">
+        <p class="folio">— 02 —</p>
+        <button class="continua anim" data-goto="2">Continúa · Brunch, pág. 3 <span class="arw">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================== 2 · BRUNCH I -->
+  <section class="page" data-cat="brunch" aria-label="Brunch, primera parte">
+    <div class="sheet">
+      <div class="layer-back" aria-hidden="true">
+        <span class="ghost" style="top:1%;left:-10%">02</span>
+        <svg class="botanica" style="width:140px;right:-42px;top:30%;transform:rotate(150deg)" viewBox="0 0 100 170">
+          <path d="M50 6 C 50 60, 50 116, 50 164"/>
+          <path d="M50 32 C 33 28, 21 15, 19 3 C 36 7, 46 18, 50 32Z"/>
+          <path d="M50 66 C 67 62, 79 49, 81 37 C 64 41, 54 52, 50 66Z"/>
+          <path d="M50 102 C 33 98, 21 85, 19 73 C 36 77, 46 88, 50 102Z"/>
+        </svg>
+      </div>
+      <div class="runhead"><span class="tag">Doboré · La Carta</span><span class="tag r-r">Sección II</span></div>
+
+      <header class="opener anim">
+        <p class="kicker tag">Sección Dos · Del fogón a la mesa</p>
+        <h2 class="op-title">Brunch</h2>
+        <p class="standfirst">Sabe a domingo, cualquier día de la semana.</p>
+      </header>
+      <div class="rule anim"></div>
+      <p class="lede anim"><span class="dropcap">P</span>an que amasamos en casa, huevos del día y salsa que se cocina lento. El brunch de Doboré es de mesa larga y sobremesa larga. Ven con hambre y sin reloj.</p>
+
+      <button class="feature dish anim" data-dish="sandwich-huevo" aria-label="Ver Sandwich de Huevo">
+        <figure class="figure kb">
+          <div class="frame"><img src="../fotos/foto-02.webp" loading="lazy" alt="Sandwich de huevo con queso fundido en pan brioche dorado"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Huevos cremosos y queso fundido en pan brioche dorado en mantequilla.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 2</span><span class="dish-name">Sandwich de <em>Huevo</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <p class="pullquote anim">La que se pide sin mirar la carta.<span>Sobre la Hamburguesa Doboré</span></p>
+
+      <button class="feature dish anim" data-dish="hamburguesa" aria-label="Ver Hamburguesa Doboré Suprema, plato de la casa">
+        <figure class="figure wide kb">
+          <span class="seal">Plato de la casa</span>
+          <div class="frame"><img src="../fotos/foto-03.webp" loading="lazy" alt="Hamburguesa Doboré Suprema con queso cheddar y Pepper Jack derretidos, cebolla encurtida y salsa de la casa"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Media libra de carne, doble queso y salsa de la casa en pan artesanal.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 3</span><span class="dish-name">Hamburguesa <em>Doboré</em> Suprema</span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <div class="tail">
+        <p class="folio">— 03 —</p>
+        <button class="continua anim" data-goto="3">Continúa · Brunch, pág. 4 <span class="arw">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================== 3 · BRUNCH II -->
+  <section class="page" data-cat="brunch" aria-label="Brunch, segunda parte">
+    <div class="sheet">
+      <div class="layer-back" aria-hidden="true">
+        <span class="ghost" style="bottom:2%;right:-10%">02</span>
+        <svg class="botanica" style="width:130px;left:-40px;top:16%;transform:rotate(-158deg)" viewBox="0 0 100 170">
+          <path d="M50 6 C 50 60, 50 116, 50 164"/>
+          <path d="M50 32 C 33 28, 21 15, 19 3 C 36 7, 46 18, 50 32Z"/>
+          <path d="M50 66 C 67 62, 79 49, 81 37 C 64 41, 54 52, 50 66Z"/>
+          <path d="M50 102 C 33 98, 21 85, 19 73 C 36 77, 46 88, 50 102Z"/>
+        </svg>
+      </div>
+      <div class="runhead"><span class="tag">Brunch · Continuación</span><span class="tag r-r">Sección II</span></div>
+
+      <header class="opener anim" style="padding-top:14px">
+        <p class="kicker tag">Sigue el fogón</p>
+        <h2 class="op-title" style="font-size:clamp(2.6rem,15vw,4rem)">De la<br>casa</h2>
+      </header>
+      <div class="rule anim"></div>
+
+      <button class="feature dish anim" data-dish="tortilla" aria-label="Ver Tortilla de la Abuela">
+        <figure class="figure kb">
+          <div class="frame"><img src="../fotos/foto-05.webp" loading="lazy" alt="Tortilla de la Abuela asada, servida caliente con queso nacional"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Tortilla criolla asada como en casa, con queso nacional.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 4</span><span class="dish-name">Tortilla de la <em>Abuela</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <button class="feature dish anim" data-dish="hummus" aria-label="Ver Hummus">
+        <figure class="figure wide kb">
+          <div class="frame"><img src="../fotos/foto-06.webp" loading="lazy" alt="Plato de hummus sedoso con aceite de oliva y pan pita tostado"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Garbanzo sedoso, aceite de oliva y pita tostada. Para compartir.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 5</span><span class="dish-name"><em>Hummus</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <button class="feature dish anim" data-dish="alitas" aria-label="Ver Alitas de Pollo">
+        <figure class="figure kb">
+          <div class="frame"><img src="../fotos/foto-07.webp" loading="lazy" alt="Alitas de pollo doradas, bañadas en salsa de la casa con ajonjolí"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Doraditas, bañadas en salsa de la casa. Pide servilletas de más.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 6</span><span class="dish-name">Alitas de <em>Pollo</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <div class="tail">
+        <p class="folio">— 04 —</p>
+        <button class="continua anim" data-goto="4">Continúa · Postres, pág. 5 <span class="arw">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================== 4 · POSTRES -->
+  <section class="page" data-cat="postres" aria-label="Postres">
+    <div class="sheet">
+      <div class="layer-back" aria-hidden="true">
+        <span class="ghost" style="top:1%;right:-8%">03</span>
+        <svg class="botanica" style="width:150px;left:-46px;bottom:8%;transform:rotate(-12deg)" viewBox="0 0 100 170">
+          <path d="M50 6 C 50 60, 50 116, 50 164"/>
+          <path d="M50 32 C 33 28, 21 15, 19 3 C 36 7, 46 18, 50 32Z"/>
+          <path d="M50 66 C 67 62, 79 49, 81 37 C 64 41, 54 52, 50 66Z"/>
+          <path d="M50 102 C 33 98, 21 85, 19 73 C 36 77, 46 88, 50 102Z"/>
+          <path d="M50 138 C 67 134, 79 121, 81 109 C 64 113, 54 124, 50 138Z"/>
+        </svg>
+      </div>
+      <div class="runhead"><span class="tag">Doboré · La Carta</span><span class="tag r-r">Sección III</span></div>
+
+      <header class="opener anim">
+        <p class="kicker tag">Sección Tres · El final dulce</p>
+        <h2 class="op-title">Postres</h2>
+        <p class="standfirst">Horneado en casa, glaseado tibio. Quédate un rato más.</p>
+      </header>
+      <div class="rule anim"></div>
+      <p class="lede anim"><span class="dropcap">H</span>orneado en casa cada mañana. Glaseado que se derrite tibio, chocolate denso y un cheesecake que sabe a trópico. El cierre perfecto para un café de la tarde.</p>
+
+      <button class="feature dish anim" data-dish="cinnamon" aria-label="Ver Cinnamon Roll">
+        <figure class="figure kb">
+          <div class="frame"><img src="../fotos/foto-04.webp" loading="lazy" alt="Cinnamon roll horneado en casa con glaseado tibio por encima"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Rollo de canela horneado en casa, con glaseado tibio que se derrite encima.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 7</span><span class="dish-name">Cinnamon <em>Roll</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <button class="feature dish anim" data-dish="waffles" aria-label="Ver Waffles Doboré, plato de la casa">
+        <figure class="figure waffle kb">
+          <span class="seal">Plato de la casa</span>
+          <div class="frame"><img src="../fotos/foto-09.webp" loading="lazy" alt="Waffles Doboré dorados, con miel y fruta fresca"></div>
+          <figcaption class="figcap">
+            <span class="cap"><b>Pie de foto</b>Dorados por fuera, suaves por dentro, con miel y fruta fresca.</span>
+            <span class="price">B/. 1.00</span>
+          </figcaption>
+        </figure>
+        <span class="dish-head"><span class="dish-no">Fig. 8</span><span class="dish-name">Waffles <em>Doboré</em></span></span>
+        <span class="dish-read">Toca para leer el plato</span>
+      </button>
+
+      <section class="index anim" aria-label="Dulces sin foto">
+        <div class="index-h"><span class="t">Dulce de más</span><span class="n tag">Con un espresso al lado</span></div>
+        <button class="irow" data-dish="cheesecake"><span class="col"><span class="in">Cheesecake de maracuyá</span><span class="id">Cremoso, con coulis bien panameño.</span></span><span class="lead"></span><span class="ip">B/. 4.75</span></button>
+        <button class="irow" data-dish="brownie"><span class="col"><span class="in">Brownie de chocolate</span><span class="id">Denso, húmedo, con nuez tostada.</span></span><span class="lead"></span><span class="ip">B/. 4.25</span></button>
+      </section>
+
+      <div class="tail">
+        <p class="folio">— 05 —</p>
+        <button class="continua anim" data-goto="5">Continúa · Colofón, pág. 6 <span class="arw">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================== 5 · COLOFÓN -->
+  <section class="page colofon" data-cat="colofon" aria-label="Colofón">
+    <div class="sheet">
+      <svg class="colibri" viewBox="0 0 110 90" aria-hidden="true">
+        <path class="wing" d="M62 37 C 63 26, 71 14, 84 8 C 90 5.5, 97 4.5, 103 5.5 C 97 13, 90 21, 83 28 C 77 33.5, 70 37, 64 38.5 Z"/>
+        <path d="M6 44 C 18 42.5, 30 43.5, 40 44.5 C 43 37, 50 32, 57 33 C 62 34, 66 38, 67 43 C 73 45, 77.5 50, 78.5 55 C 85 61, 89.5 71, 88.5 83 C 84.5 78, 81 73, 78 68 C 77.5 74.5, 74.5 79.5, 69.5 83 C 69.5 76.5, 68.5 70, 66 64.5 C 59.5 66, 51 63.5, 45.5 57 C 42.5 53.5, 41 49.5, 40.5 47.5 C 30 46.5, 17 45.5, 6 45.5 Z"/>
+        <circle class="ojo" cx="51.5" cy="40" r="2"/>
+      </svg>
+      <p class="colofon-name">Doboré</p>
+      <p class="colofon-line">Café · Brunch · Postres</p>
+      <p class="colofon-note">Pide en barra o levanta la mano, que vamos a ti. Gracias por hojear la carta.</p>
+      <div class="colofon-meta">
+        <b>Colofón</b>
+        La Carta, N.º 01. Boquete, Panamá. Fotografía y cocina de la casa. Grano de las tierras altas de Chiriquí.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =================================================== NAV FIJA -->
+<nav class="nav" aria-label="Navegación de la carta">
+  <button class="nav-arw" id="prev" aria-label="Página anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="nav-cats" role="tablist">
+    <button class="nav-cat" data-goto="1" data-range="1">Café</button>
+    <button class="nav-cat" data-goto="2" data-range="2-3">Brunch</button>
+    <button class="nav-cat" data-goto="4" data-range="4">Postres</button>
+  </div>
+  <span class="nav-folio" id="folio" aria-live="polite">Portada</span>
+  <button class="nav-arw" id="next" aria-label="Página siguiente"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+</nav>
+
+<!-- =================================================== DETALLE (gatefold) -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-name" hidden>
+  <div class="modal-bg" data-close aria-hidden="true"></div>
+  <button class="m-close" id="mClose" aria-label="Cerrar detalle">
+    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="modal-scroll">
+    <article class="spread">
+      <div class="leaf leaf--photo"><figure class="m-figure" id="mFigure"></figure></div>
+      <div class="leaf leaf--text">
+        <p class="m-kicker" id="mKicker"></p>
+        <h2 class="m-name" id="m-name"></h2>
+        <p class="m-desc" id="mDesc"></p>
+        <p class="m-cap" id="mCap"></p>
+        <div class="m-foot"><span class="m-price" id="mPrice"></span><span class="m-note">Pídelo en barra o levanta la mano.</span></div>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasGsap = function(){ return !reduced && typeof window.gsap !== 'undefined'; };
+
+  /* --------------------------------------------------- datos reales */
+  var ART = {
+    cafe:'<svg class="m-art" viewBox="0 0 120 120" aria-hidden="true"><path d="M30 46 L86 46 L82 84 C81 94 73 100 63 100 L53 100 C43 100 35 94 34 84 Z"/><path d="M86 54 C100 54 106 64 101 74 C97 82 89 84 82 82"/><path d="M46 34 C42 28 47 24 45 18"/><path d="M60 34 C56 28 61 24 59 18"/><path d="M74 34 C70 28 75 24 73 18"/><line x1="24" y1="110" x2="96" y2="110"/></svg>',
+    brunch:'<svg class="m-art" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="66" rx="38" ry="12"/><ellipse cx="60" cy="62" rx="26" ry="8"/><path d="M22 66 C22 84 40 96 60 96 C80 96 98 84 98 66"/><path d="M96 30 L96 58"/><path d="M100 30 L100 58"/><path d="M92 30 L92 44 C92 50 100 50 100 44"/></svg>',
+    postres:'<svg class="m-art" viewBox="0 0 120 120" aria-hidden="true"><path d="M30 52 L90 52 L84 96 L36 96 Z"/><path d="M30 52 C30 44 90 44 90 52"/><path d="M42 40 C40 34 46 32 44 26"/><path d="M60 38 C58 32 64 30 62 24"/><path d="M78 40 C76 34 82 32 80 26"/><line x1="34" y1="72" x2="86" y2="72"/></svg>'
+  };
+  var CATS = { cafe:'Sección I · Café', brunch:'Sección II · Brunch', postres:'Sección III · Postres' };
+  var DISHES = {
+    'espresso-sunrise':{cat:'cafe',name:'Espresso <em>Sunrise</em>',price:'B/. 1.00',foto:'../fotos/foto-01.webp',
+      alt:'Espresso Sunrise en vaso alto, con capas de tónica, espresso y jugo de naranja sobre hielo',
+      desc:'Agua tónica, un shot bien cargado y jugo de naranja natural, servido en capas sobre hielo. Frío, burbujeante y con el golpe justo para arrancar el día.',
+      cap:'Se sirve en la barra, recién armado.'},
+    'espresso':{cat:'cafe',name:'Espresso',price:'B/. 2.50',foto:null,
+      desc:'Doble shot de granos locales, tueste fresco de la semana. Corto, intenso, al grano.',
+      cap:'El punto de partida de toda la barra.'},
+    'cappuccino':{cat:'cafe',name:'Cappuccino',price:'B/. 3.25',foto:null,
+      desc:'Espresso con leche vaporizada y una espuma sedosa. El clásico que nunca falla.',
+      cap:'Pídelo espolvoreado con cacao si quieres.'},
+    'latte':{cat:'cafe',name:'Latte',price:'B/. 3.75',foto:null,
+      desc:'Suave y cremoso, con arte latte de la casa. Para tomarse el tiempo.',
+      cap:'El más pedido para quedarse a trabajar.'},
+    'coldbrew':{cat:'cafe',name:'Cold Brew',price:'B/. 4.00',foto:null,
+      desc:'Extracción en frío durante horas, servido con hielo. Dulzor natural, cero amargura.',
+      cap:'Ideal para las tardes de Boquete.'},
+    'sandwich-huevo':{cat:'brunch',name:'Sandwich de <em>Huevo</em>',price:'B/. 1.00',foto:'../fotos/foto-02.webp',
+      alt:'Sandwich de huevo con queso fundido en pan brioche dorado, de cerca',
+      desc:'Huevos cremosos, queso derretido y pan brioche tostado en mantequilla. Sencillo y adictivo.',
+      cap:'El desayuno rápido que se vuelve costumbre.'},
+    'hamburguesa':{cat:'brunch',name:'Hamburguesa <em>Doboré</em> Suprema',price:'B/. 1.00',foto:'../fotos/foto-03.webp',destacado:true,
+      alt:'Hamburguesa Doboré Suprema con queso cheddar y Pepper Jack derretidos, cebolla encurtida y salsa de la casa',
+      desc:'Pan artesanal, media libra de carne, queso cheddar y Pepper Jack, cebolla encurtida y salsa de la casa. La que se pide sin mirar la carta.',
+      cap:'Plato de la casa. Pide papas al lado.'},
+    'tortilla':{cat:'brunch',name:'Tortilla de la <em>Abuela</em>',price:'B/. 1.00',foto:'../fotos/foto-05.webp',
+      alt:'Tortilla de la Abuela asada, servida caliente con queso nacional',
+      desc:'Tortilla criolla asada como la hacía la abuela, con queso nacional. Sabe a casa.',
+      cap:'Receta de familia, sin atajos.'},
+    'hummus':{cat:'brunch',name:'<em>Hummus</em>',price:'B/. 1.00',foto:'../fotos/foto-06.webp',
+      alt:'Plato de hummus sedoso con aceite de oliva y pan pita tostado',
+      desc:'Garbanzo sedoso, aceite de oliva, paprika y pan pita tostado. Para compartir, o no.',
+      cap:'Ligero y para la mesa entera.'},
+    'alitas':{cat:'brunch',name:'Alitas de <em>Pollo</em>',price:'B/. 1.00',foto:'../fotos/foto-07.webp',
+      alt:'Alitas de pollo doradas, bañadas en salsa de la casa con ajonjolí',
+      desc:'Bañadas en salsa de la casa, doraditas y con ajonjolí. Pide servilletas extra.',
+      cap:'Van directo del fogón a tu mesa.'},
+    'cinnamon':{cat:'postres',name:'Cinnamon <em>Roll</em>',price:'B/. 1.00',foto:'../fotos/foto-04.webp',
+      alt:'Cinnamon roll horneado en casa con glaseado tibio por encima',
+      desc:'Rollo de canela horneado en casa, con glaseado tibio que se derrite encima. Pídelo apenas sale del horno.',
+      cap:'Recién horneado en la mañana.'},
+    'waffles':{cat:'postres',name:'Waffles <em>Doboré</em>',price:'B/. 1.00',foto:'../fotos/foto-09.webp',destacado:true,waffle:true,
+      alt:'Waffles Doboré dorados, con miel y fruta fresca',
+      desc:'Dorados por fuera, suaves por dentro, con miel y fruta fresca. El favorito de la casa para cerrar la mañana.',
+      cap:'Plato de la casa. Perfecto con café.'},
+    'cheesecake':{cat:'postres',name:'Cheesecake de maracuyá',price:'B/. 4.75',foto:null,
+      desc:'Cremoso, con coulis de maracuyá bien panameño. Ácido y dulce en el punto.',
+      cap:'El trópico en una tajada.'},
+    'brownie':{cat:'postres',name:'Brownie de chocolate',price:'B/. 4.25',foto:null,
+      desc:'Denso, húmedo, con nuez tostada. Pídelo con un espresso al lado.',
+      cap:'Para los de chocolate serio.'}
+  };
+
+  /* =================================================== LIBRO / PÁGINAS */
+  var deck = document.getElementById('deck');
+  var pages = Array.prototype.slice.call(deck.querySelectorAll('.page'));
+  var total = pages.length;
+  var current = 0;
+  var animating = false;
+
+  pages.forEach(function(p, i){ p.style.zIndex = String(total - i); });
+
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  var folioOut = document.getElementById('folio');
+  var cats = Array.prototype.slice.call(document.querySelectorAll('.nav-cat'));
+  var FOLIOS = ['Portada','02 / 06','03 / 06','04 / 06','05 / 06','06 / 06'];
+
+  function inRange(range, idx){
+    if (range.indexOf('-') > -1){
+      var parts = range.split('-'); return idx >= +parts[0] && idx <= +parts[1];
+    }
+    return idx === +range;
+  }
+
+  function playEntrance(page){
+    if (!hasGsap()) return;
+    var back = page.querySelector('.layer-back');
+    var fore = page.querySelectorAll('.anim');
+    window.gsap.killTweensOf([back]);
+    window.gsap.killTweensOf(fore);
+    var tl = window.gsap.timeline({delay:.14, defaults:{ease:'power3.out'}});
+    if (back){ tl.fromTo(back, {autoAlpha:0}, {autoAlpha:1, duration:1.1}, 0); }
+    if (fore.length){
+      tl.fromTo(fore, {y:30, autoAlpha:0}, {y:0, autoAlpha:1, stagger:.09, duration:.72}, .08);
+    }
+  }
+
+  var parallaxPage = null, parallaxFn = null;
+  function attachParallax(page){
+    if (parallaxPage && parallaxFn){ parallaxPage.removeEventListener('scroll', parallaxFn); }
+    parallaxPage = null; parallaxFn = null;
+    if (reduced) return;
+    var back = page.querySelector('.layer-back');
+    if (!back) return;
+    parallaxPage = page;
+    parallaxFn = function(){ back.style.transform = 'translate3d(0,' + (page.scrollTop * 0.16) + 'px,0)'; };
+    page.addEventListener('scroll', parallaxFn, {passive:true});
+  }
+
+  function updateChrome(){
+    folioOut.textContent = FOLIOS[current] || (current + ' / ' + (total-1));
+    prevBtn.setAttribute('aria-disabled', current <= 0 ? 'true' : 'false');
+    nextBtn.setAttribute('aria-disabled', current >= total-1 ? 'true' : 'false');
+    cats.forEach(function(c){
+      c.setAttribute('aria-current', inRange(c.dataset.range, current) ? 'true' : 'false');
+    });
+  }
+
+  function goTo(i){
+    i = Math.max(0, Math.min(total-1, i));
+    if (i === current){ return; }
+    current = i;
+    pages.forEach(function(p, idx){
+      p.classList.toggle('turned', idx < current);
+      p.classList.toggle('is-active', idx === current);
+      if (idx === current){ p.scrollTop = 0; }
+    });
+    updateChrome();
+    var page = pages[current];
+    attachParallax(page);
+    playEntrance(page);
+    // enfoca la página nueva para lectores de pantalla / teclado
+    try { page.setAttribute('tabindex','-1'); page.focus({preventScroll:true}); } catch(e){}
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+  document.querySelectorAll('[data-goto]').forEach(function(el){
+    el.addEventListener('click', function(){ goTo(parseInt(el.dataset.goto, 10)); });
+  });
+
+  /* teclado: flechas cambian de página (si el modal está cerrado) */
+  document.addEventListener('keydown', function(ev){
+    if (!modal.hidden) return;
+    if (ev.key === 'ArrowRight'){ goTo(current + 1); }
+    else if (ev.key === 'ArrowLeft'){ goTo(current - 1); }
+  });
+
+  /* gesto de deslizar para pasar la página */
+  var sx=0, sy=0, st=0, tracking=false, suppressClick=false;
+  deck.addEventListener('pointerdown', function(ev){
+    tracking = true; sx = ev.clientX; sy = ev.clientY; st = Date.now();
+  }, {passive:true});
+  deck.addEventListener('pointerup', function(ev){
+    if (!tracking) return; tracking = false;
+    var dx = ev.clientX - sx, dy = ev.clientY - sy, dt = Date.now() - st;
+    if (Math.abs(dx) >= 58 && Math.abs(dx) > Math.abs(dy) * 1.4 && dt < 800){
+      suppressClick = true;
+      setTimeout(function(){ suppressClick = false; }, 80);
+      if (dx < 0) goTo(current + 1); else goTo(current - 1);
+    }
+  }, {passive:true});
+  deck.addEventListener('click', function(ev){
+    if (suppressClick){ ev.preventDefault(); ev.stopPropagation(); suppressClick = false; }
+  }, true);
+
+  /* micro-presión al tocar un plato */
+  document.querySelectorAll('.feature.dish, .irow, .toc-row').forEach(function(el){
+    el.addEventListener('pointerdown', function(){
+      if (hasGsap()) window.gsap.to(el, {scale:.975, duration:.16, ease:'power2.out'});
+    }, {passive:true});
+    ['pointerup','pointerleave','pointercancel'].forEach(function(evn){
+      el.addEventListener(evn, function(){
+        if (hasGsap()) window.gsap.to(el, {scale:1, duration:.5, ease:'elastic.out(1,.5)'});
+      }, {passive:true});
+    });
+  });
+
+  /* =================================================== DETALLE (gatefold) */
+  var modal   = document.getElementById('modal');
+  var mBg      = modal.querySelector('.modal-bg');
+  var mClose   = document.getElementById('mClose');
+  var mFigure  = document.getElementById('mFigure');
+  var mKicker  = document.getElementById('mKicker');
+  var mName    = document.getElementById('m-name');
+  var mDesc    = document.getElementById('mDesc');
+  var mCap     = document.getElementById('mCap');
+  var mPrice   = document.getElementById('mPrice');
+  var lastFocus = null;
+  var closeTimer = null;
+
+  function dropcapify(text){
+    text = String(text);
+    var first = text.charAt(0), rest = text.slice(1);
+    return '<span class="dropcap">' + first + '</span>' + rest;
+  }
+
+  function openDetail(id){
+    var d = DISHES[id]; if (!d) return;
+    if (closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
+    mKicker.textContent = CATS[d.cat] + (d.destacado ? ' · Plato de la casa' : '');
+    mName.innerHTML = d.name;
+    mDesc.innerHTML = dropcapify(d.desc);
+    mCap.textContent = d.cap || '';
+    mPrice.textContent = d.price;
+    if (d.foto){
+      mFigure.className = 'm-figure' + (d.waffle ? ' waffle' : '');
+      mFigure.innerHTML = (d.destacado ? '<span class="m-badge">Plato de la casa</span>' : '') +
+        '<img src="' + d.foto + '" alt="' + (d.alt || '') + '">';
+    } else {
+      mFigure.className = 'm-figure art';
+      mFigure.innerHTML = ART[d.cat] || ART.cafe;
+    }
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    modal.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+    // fuerza reflow para que la transición de apertura corra
+    void modal.offsetWidth;
+    modal.classList.add('is-open');
+    setTimeout(function(){ try { mClose.focus(); } catch(e){} }, reduced ? 0 : 60);
+  }
+
+  function closeDetail(){
+    if (modal.hidden) return;
+    modal.classList.remove('is-open');
+    var done = function(){
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus){ try { lastFocus.focus({preventScroll:true}); } catch(e){} }
+    };
+    if (reduced){ done(); }
+    else { closeTimer = setTimeout(done, 560); }
+  }
+
+  document.querySelectorAll('[data-dish]').forEach(function(el){
+    el.addEventListener('click', function(){ openDetail(el.dataset.dish); });
+  });
+  mClose.addEventListener('click', closeDetail);
+  mBg.addEventListener('click', closeDetail);
+  document.addEventListener('keydown', function(ev){
+    if (modal.hidden) return;
+    if (ev.key === 'Escape'){ closeDetail(); return; }
+    if (ev.key === 'Tab'){
+      // trampa de foco simple entre el botón cerrar y el propio modal
+      ev.preventDefault();
+      try { mClose.focus(); } catch(e){}
+    }
+  });
+
+  /* =================================================== ARRANQUE */
+  updateChrome();
+  attachParallax(pages[0]);
+  if (hasGsap()){
+    // aleteo y flotación del colibrí de portada
+    window.gsap.to('.cover .wing', {rotation:9, transformOrigin:'16% 84%', duration:.16, yoyo:true, repeat:-1, ease:'sine.inOut'});
+    window.gsap.to('.cover .colibri', {y:-6, duration:1.7, yoyo:true, repeat:-1, ease:'sine.inOut'});
+    playEntrance(pages[0]);
+  }
+})();
+</script>
+</body>
+</html>
